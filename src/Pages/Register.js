@@ -27,11 +27,11 @@ const style = {
 function Register() {
 
   const diagnosisTypes = ["Endoscopy","Colonoscopy"];
-  const [age, setAge] = React.useState('');
+  const [diagnosis, setDiagnosis] = React.useState('');
   const [name, setName] = React.useState('');
 
   const handleChange = (e) => {
-    setAge(e.target.value);
+    setDiagnosis(e.target.value);
   };
 
 
@@ -56,7 +56,7 @@ function Register() {
         <Select
           labelId="demo-simple-select-label"
           id="demo-simple-select"
-          value={age}
+          value={diagnosis}
           label="Diagnosis Type"
           onChange={handleChange}
           className='mt-6'
@@ -69,10 +69,10 @@ function Register() {
     </FormControl>
 
     <FormGroup className='mt-7'>
-      <FormControlLabel control={<Checkbox disabled={name?(age?false:true):true}/>} label="I want the system to save the footages of findings" />
+      <FormControlLabel control={<Checkbox disabled={name?(diagnosis?false:true):true}/>} label="I want the system to save the footages of findings" />
     </FormGroup>
 
-    <Button sx = {style.root} className={`${classes.inputField}`}disabled = {name?(age?false:true):true} variant = "contained" onClick={{}}>Start the session</Button>
+    <Button sx = {style.root} className={`${classes.inputField}`}disabled = {name?(diagnosis?false:true):true} variant = "contained" onClick={{}}>Start the session</Button>
    
     </div>
   )
