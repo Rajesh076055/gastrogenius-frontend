@@ -32,7 +32,9 @@ function HomePage() {
           <div className ="">
             <Button sx = {style.root}  variant = "contained" onClick={handleStart}>Start the session</Button>
           </div>
+          
         </div>
+
 
       );
 }
