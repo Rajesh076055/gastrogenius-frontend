@@ -6,6 +6,8 @@ import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import axios from 'axios';
 import io from 'socket.io-client';
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
 
 const useStyles = makeStyles(() => ({
   inputField: {
@@ -25,27 +27,44 @@ const style = {
   }
  }
 
+ const styleBox = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 540,
+  bgcolor: 'background.paper',
+  border: '0px solid #000',
+  boxShadow: 0,
+  p: 0,
+};
+
  const socket = io('http://localhost:5000');
 
  socket.on('connect', () => {
   console.log('Connected to server');
 });
+
 function Register() {
 
   const canvasRef = React.useRef(null);
   const diagnosisTypes = ["Endoscopy","Colonoscopy"];
   const [diagnosis, setDiagnosis] = React.useState('');
   const [name, setName] = React.useState('');
-  const [frames, setFrames] = React.useState([]);
+  const [open, setOpen] = React.useState(false);
   const [goodToGo, setGoodToGo] = React.useState(false);
   const [filename, setFilename] = React.useState('');
   const [currentFrameIndex, setCurrentFrameIndex] = React.useState(0);
-  const worker = React.useRef(null);
+  const [goodToStart, setGoodToStart] = React.useState(false);
 
   const handleChange = (e) => {
     setDiagnosis(e.target.value);
   };
 
+  const handleClose = () => {
+
+    window.location.assign('/register-service');
+  }
 
 
   const handleVideoInput = async(e)=> {
@@ -61,6 +80,12 @@ function Register() {
         headers: {'Content-Type':'multipart/form-data'},
       });
 
+
+      if (response.data.ack)
+      {
+        setGoodToStart(true);
+      }
+
       setGoodToGo(response.data.ack);
       setFilename(response.data.filepath);
 
@@ -73,6 +98,7 @@ function Register() {
 
   const startSession =()=> {
     
+    setOpen(true);
     socket.emit("frame",filename);
 
     return ()=> {
@@ -83,10 +109,7 @@ function Register() {
   useEffect(()=>{
 
     socket.on("extracted-frame",(frame)=>{
-      // console.log("Frame just received: ",frame);
-      //const secondsSinceEpoch = Math.round(Date.now() / 1000)
-      //console.log(secondsSinceEpoch)
-      const start = performance.now()
+
       const canvas = canvasRef.current;
       const ctx = canvas.getContext('2d');
   
@@ -98,8 +121,6 @@ function Register() {
           img.onload = () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            const end = performance.now();
-            console.log(end-start);
             setCurrentFrameIndex((prevIndex) => prevIndex + 1);
             //requestAnimationFrame(renderFrames);
           };
@@ -108,6 +129,7 @@ function Register() {
         
       
   
+      
       renderFrames();
 
       // callback('Frame received');
@@ -164,9 +186,21 @@ function Register() {
     <FormGroup className='mt-7'>
       <FormControlLabel control={<Checkbox disabled={name?(diagnosis?false:true):true}/>} label="I want the system to save the footages of findings" />
     </FormGroup>
-    <Button sx = {style.root} className={`${classes.inputField}`} variant = "contained" onClick={startSession}>Start the session</Button>
+    <Button sx = {style.root} className={`${classes.inputField}`} disabled = {!goodToStart} variant = "contained" onClick={startSession}>Start the session</Button>
 
-    <canvas ref={canvasRef} width={640} height={480}></canvas>
+    <Modal
+      open={open}
+      onClose={handleClose}
+      aria-labelledby="modal-modal-title"
+      aria-describedby="modal-modal-description"
+    >
+      
+      <Box sx={styleBox}>
+        <canvas ref={canvasRef} width={540} height={280}></canvas>
+      </Box>
+      
+    </Modal>
+   
     
     </div>
   )
