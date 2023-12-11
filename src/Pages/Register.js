@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { TextField, Input, Select, MenuItem, FormControl, InputLabel, Button } from '@mui/material'
 import { makeStyles } from '@mui/styles';
+
 import Checkbox from '@mui/material/Checkbox';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -209,7 +210,7 @@ function Register() {
       >
 
         <Box sx={styleBox}>
-          <canvas ref={canvasRef} width={540} height={280}></canvas>
+          <canvas ref={canvasRef} width={540} height={350}></canvas>
         </Box>
 
       </Modal>
