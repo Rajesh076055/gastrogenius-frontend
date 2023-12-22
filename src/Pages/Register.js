@@ -1,14 +1,13 @@
 import React, { useEffect } from 'react'
 import { TextField, Input, Select, MenuItem, FormControl, InputLabel, Button } from '@mui/material'
 import { makeStyles } from '@mui/styles';
-
 import Checkbox from '@mui/material/Checkbox';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import axios from 'axios';
-import io from 'socket.io-client';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
+import io from 'socket.io-client';
 
 const useStyles = makeStyles(() => ({
   inputField: {
@@ -40,6 +39,11 @@ const styleBox = {
   p: 0,
 };
 
+
+const socket_with_ai = io('http://localhost:8000');
+
+socket_with_ai.emit("connect_with_frontend");
+
 function Register() {
 
   const canvasRef = React.useRef(null);
@@ -57,12 +61,14 @@ function Register() {
     setDiagnosis(e.target.value);
   };
 
+  //This is a temporary action. It refreshes the page when user clicks anywhere outside canvas
   const handleClose = () => {
-
-    window.location.assign('/register-service');
+    setOpen(false);
+    socket_with_ai.emit('stop_thread');
   }
 
 
+  //This function triggers just when the user selects a footage
   const handleVideoInput = async (e) => {
 
     const videoFile = e.target.files[0];
@@ -71,6 +77,8 @@ function Register() {
     formData.append("file", videoFile);
 
 
+    //The below code is used to provide video file to the ai server just when user uploads
+    //The response is acknowledgement and the filepath
     try {
       const response = await axios.post("http://localhost:8000/send-videos", formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -84,81 +92,60 @@ function Register() {
       setGoodToGo(response.data.ack);
       setFilename(response.data.filepath);
 
-      console.log("We have received acknowledgement from fastapi app: ", response.data.ack);
-      console.log("We have received filepath from fastapi app: ", response.data.filepath);
+      // console.log("We have received acknowledgement from fastapi app: ", response.data.ack);
+      // console.log("We have received filepath from fastapi app: ", response.data.filepath);
 
     } catch (error) {
       console.log("Error uploading video!", error);
     }
   }
 
-  const startSession = () => {
-    setOpen(true);
-    if (!socket) {
-      const newSocket = new WebSocket('ws://localhost:8000/ws');
-      setSocket(newSocket);
+  //The below code has the web socket configuration which setups a bidirectional connection with the ai server
+  const startSession = async() => {
 
-      newSocket.onopen = function (event) {
-        console.log("WebSocket connected");
-        newSocket.send(filename);
-      };
-      console.log("going to return");
+    try {
 
-      return () => {
-        newSocket.close();
-        console.log("returned");
-      };
+        const response = await axios.post('http://localhost:8000/start-session', filename,{
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+
+        if (response.data.ACK)
+        {
+          setOpen(true);
+        }
+        else
+        {
+          alert("There is something wrong!")
+        }
+    } catch (error) {
+      console.log("Error sending the start session request.", error) 
     }
   };
-  useEffect(() => {
-
-    console.log("trying to enter");
-    if (socket) {
-      console.log("entered");
-      socket.onmessage = function (event) {
-        const frame = event.data;
-
-        console.log(typeof (frame))
 
 
-        const canvas = canvasRef.current;
-        console.log('canvas: ', typeof(canvas))
-        if (canvas) {
-          console.log("entered into canvas")
-          const ctx = canvas.getContext('2d');
+  useEffect(()=>{
+    socket_with_ai.on("Processed_Frame",(frame)=>{
+      const canvas = canvasRef.current;
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        img.src = `data:image/jpeg;base64,${frame}`;
 
-          // const renderFrames = async() => {
+        img.onload = () => {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          //console.log("Frame has been applied at: ", currentTimeInSeconds);
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          setCurrentFrameIndex((prevIndex) => prevIndex + 1);
+        };
 
-          const img = new Image();
-          img.src = `data:image/jpeg;base64,${frame}`;
-          console.log(typeof(img))
-          img.onload = () => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            setCurrentFrameIndex((prevIndex) => prevIndex + 1);
-            //requestAnimationFrame(renderFrames);
-          };
-        }
       }
+  })
 
-
-
-
-      // renderFrames();    
-      // }
+    return ()=> {
+      socket_with_ai.off("Processed_Frame");
     }
-
-    return () => {
-      if (socket) {
-        socket.close();
-      }
-    };
-
-
-  }, [socket]);
-
-
-
+    
+  },[socket_with_ai]);
 
 
   const classes = useStyles();
@@ -194,8 +181,6 @@ function Register() {
         </Select>
       </FormControl>
 
-
-
       <Input type="file" accept="video/*,image/*" onChange={handleVideoInput} sx={{ marginTop: 3 }} ></Input>
       <FormGroup className='mt-7'>
         <FormControlLabel control={<Checkbox disabled={name ? (diagnosis ? false : true) : true} />} label="I want the system to save the footages of findings" />
@@ -214,7 +199,6 @@ function Register() {
         </Box>
 
       </Modal>
-
 
     </div>
   )
