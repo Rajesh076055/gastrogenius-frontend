@@ -1,0 +1,12 @@
+.__sessionBody__ {
+    background-color: #000;
+    height: 75vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.__sessionFooter__ {
+    background-color: #103557;
+    height: 25vh;
+}

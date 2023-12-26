@@ -1,43 +1,31 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { TextField, Input, Select, MenuItem, FormControl, InputLabel, Button } from '@mui/material'
 import { makeStyles } from '@mui/styles';
 import Checkbox from '@mui/material/Checkbox';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import axios from 'axios';
-import Modal from '@mui/material/Modal';
-import Box from '@mui/material/Box';
-import io from 'socket.io-client';
+import { useNavigate } from 'react-router-dom';
+import { useSocket } from '../Contexts/SocketContext';
 
 const useStyles = makeStyles(() => ({
   inputField: {
-    width: '30%',
+    width: '80%',
+    height:'8%'
   },
 }));
 
 const style = {
   root: {
-    backgroundColor: "#92400E",
-    marginTop: 4,
+    backgroundColor: "#103557",
     ':hover': {
-      backgroundColor: "#92400E",
+      backgroundColor: "#103552",
       boxShadow: "default"
     },
     boxShadow: 'none',
   }
 }
 
-const styleBox = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 540,
-  bgcolor: 'background.paper',
-  border: '0px solid #000',
-  boxShadow: 0,
-  p: 0,
-};
 
 
 const socket_with_ai = io('http://localhost:8000');
@@ -46,26 +34,22 @@ socket_with_ai.emit("connect_with_frontend");
 
 function Register() {
 
-  const canvasRef = React.useRef(null);
+  
   const diagnosisTypes = ["Endoscopy", "Colonoscopy"];
   const [diagnosis, setDiagnosis] = React.useState('');
   const [name, setName] = React.useState('');
-  const [open, setOpen] = React.useState(false);
-  const [goodToGo, setGoodToGo] = React.useState(false);
+  //const [open, setOpen] = React.useState(false);
+  //const [goodToGo, setGoodToGo] = React.useState(false);
   const [filename, setFilename] = React.useState('');
-  const [currentFrameIndex, setCurrentFrameIndex] = React.useState(0);
+  //const [currentFrameIndex, setCurrentFrameIndex] = React.useState(0);
   const [goodToStart, setGoodToStart] = React.useState(false);
-  const [socket, setSocket] = React.useState(null);
-
+  const navigate = useNavigate();
+  const socket_with_ai = useSocket();
+  
   const handleChange = (e) => {
     setDiagnosis(e.target.value);
   };
 
-  //This is a temporary action. It refreshes the page when user clicks anywhere outside canvas
-  const handleClose = () => {
-    setOpen(false);
-    socket_with_ai.emit('stop_thread');
-  }
 
 
   //This function triggers just when the user selects a footage
@@ -89,11 +73,8 @@ function Register() {
         setGoodToStart(true);
       }
 
-      setGoodToGo(response.data.ack);
       setFilename(response.data.filepath);
-
-      // console.log("We have received acknowledgement from fastapi app: ", response.data.ack);
-      // console.log("We have received filepath from fastapi app: ", response.data.filepath);
+      
 
     } catch (error) {
       console.log("Error uploading video!", error);
@@ -111,7 +92,7 @@ function Register() {
 
         if (response.data.ACK)
         {
-          setOpen(true);
+          navigate('/session');
         }
         else
         {
@@ -122,85 +103,53 @@ function Register() {
     }
   };
 
-
-  useEffect(()=>{
-    socket_with_ai.on("Processed_Frame",(frame)=>{
-      const canvas = canvasRef.current;
-      if (canvas) {
-        const ctx = canvas.getContext('2d');
-        const img = new Image();
-        img.src = `data:image/jpeg;base64,${frame}`;
-
-        img.onload = () => {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          //console.log("Frame has been applied at: ", currentTimeInSeconds);
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          setCurrentFrameIndex((prevIndex) => prevIndex + 1);
-        };
-
-      }
-  })
-
-    return ()=> {
-      socket_with_ai.off("Processed_Frame");
-    }
-    
-  },[socket_with_ai]);
+  React.useEffect(()=>{
+    socket_with_ai.emit('stop_thread');
+  },[])
 
 
   const classes = useStyles();
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
-      <h1 className='mb-10 font-semibold text-4xl'>Please enter the details</h1>
-      <TextField id="outlined-basic"
-        label="Your Full Name"
-        variant="outlined"
-        className={classes.inputField}
-        InputProps={{
-          inputProps: {
-            autoCapitalize: 'words',
-          },
-        }}
-        onChange={(e) => { setName(e.target.value) }}
-      />
+    <div style={{backgroundColor:'#103557',height:'100vh',display:'flex',justifyContent:'space-around',alignItems:'center'}}>
+      <div style={{marginTop:'26%',display:'flex',alignItems:'baseline'}}>
+        <h1 style={{color:'#fff',fontSize:'80px',fontWeight:700}}>Gastro<span style={{color:'#3b94e5'}}>Genius</span></h1>
+        <span style={{width:"12px",height:'12px',backgroundColor:"#3b94e5",borderRadius:'50%'}}></span>
+      </div>
+      <div style={{backgroundColor:'#fff',width:'450px', padding:'13px', height:'500px',justifyContent:'space-around'}} className="flex flex-col items-center">
+        <h1 className='font-semibold text-2xl'>Please enter the details</h1>
+        <TextField id="outlined-basic"
+          label="Your Full Name"
+          variant="outlined"
+          className={classes.inputField}
+          onChange={(e) => { setName(e.target.value) }}
+        />
 
-      <FormControl className={`${classes.inputField} mt-6`}>
-        <InputLabel id="demo-simple-select-label" className='mt-6'>Diagnosis Type</InputLabel>
-        <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-          value={diagnosis}
-          label="Diagnosis Type"
-          onChange={handleChange}
-          className='mt-6'
-        >
+        <FormControl className={`${classes.inputField}`}>
+          <InputLabel id="demo-simple-select-label" className='mt-0'>Diagnosis Type</InputLabel>
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            value={diagnosis}
+            label="Diagnosis Type"
+            onChange={handleChange}
+            className='mt-0'
+          >
 
-          <MenuItem value={diagnosisTypes[0]}>Endoscopy</MenuItem>
-          <MenuItem value={diagnosisTypes[1]}>Colonoscopy</MenuItem>
+            <MenuItem value={diagnosisTypes[0]}>Endoscopy</MenuItem>
+            <MenuItem value={diagnosisTypes[1]}>Colonoscopy</MenuItem>
 
-        </Select>
-      </FormControl>
+          </Select>
+        </FormControl>
 
-      <Input type="file" accept="video/*,image/*" onChange={handleVideoInput} sx={{ marginTop: 3 }} ></Input>
-      <FormGroup className='mt-7'>
-        <FormControlLabel control={<Checkbox disabled={name ? (diagnosis ? false : true) : true} />} label="I want the system to save the footages of findings" />
-      </FormGroup>
-      <Button sx={style.root} className={`${classes.inputField}`} disabled={!goodToStart} variant="contained" onClick={startSession}>Start the session</Button>
+        <Input type="file" accept="video/*,image/*" onChange={handleVideoInput} sx={{ marginTop: 0 }} ></Input>
+        <FormGroup className=''>
+          <FormControlLabel control={<Checkbox disabled={name ? (diagnosis ? false : true) : true} />} label="I want the system to save the footages of findings" />
+        </FormGroup>
+        <Button sx={style.root} className={`${classes.inputField}`} disabled={!goodToStart} variant="contained" onClick={startSession}>Start the session</Button>
 
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
-
-        <Box sx={styleBox}>
-          <canvas ref={canvasRef} width={540} height={350}></canvas>
-        </Box>
-
-      </Modal>
-
+      </div>
     </div>
+    
   )
 }
 
