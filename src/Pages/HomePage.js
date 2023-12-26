@@ -1,5 +1,4 @@
 import React from 'react'
-import { Button } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import "../styles/HomePage.css"
 function HomePage() {
@@ -9,20 +8,7 @@ function HomePage() {
     const handleStart = () => {
         navigate('/register-service');
       }
-      
-
-    const style = {
-      root:{
-        backgroundColor:"#92400E",
-        ':hover':{
-          backgroundColor:"#92400E",
-          boxShadow:"default"
-        },
-        boxShadow:'none',
-      }
-     }
-    
-      
+            
     return (
       <div>
         <div className='__navbar__'>
@@ -52,7 +38,7 @@ function HomePage() {
             </div>
           </div>
           <div className='__bodyImage__'>
-            <img src={require('../Images/Laptop.png')}/>
+            <img src={require('../Images/Laptop.png')} alt='LaptopImage'/>
           </div>
         </div>
         <div className='__footer__'>

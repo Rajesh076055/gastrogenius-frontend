@@ -8,6 +8,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useSocket } from '../Contexts/SocketContext';
 
+
 const useStyles = makeStyles(() => ({
   inputField: {
     width: '80%',
@@ -27,10 +28,6 @@ const style = {
 }
 
 
-
-const socket_with_ai = io('http://localhost:8000');
-
-socket_with_ai.emit("connect_with_frontend");
 
 function Register() {
 
@@ -105,7 +102,7 @@ function Register() {
 
   React.useEffect(()=>{
     socket_with_ai.emit('stop_thread');
-  },[])
+  },[socket_with_ai])
 
 
   const classes = useStyles();
