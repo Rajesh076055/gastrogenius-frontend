@@ -19,4 +19,15 @@ const style = {
     }
 }
 
-export {useStyles, style};
+const style2 = {
+  root: {
+    backgroundColor: "#3b94e5",
+    ':hover': {
+      backgroundColor: "#3b94e1;",
+      boxShadow: "default"
+    },
+    boxShadow: 'none',
+  }
+}
+
+export {useStyles, style, style2};

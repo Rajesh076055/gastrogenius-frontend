@@ -2,12 +2,17 @@ import React, {useRef, useEffect, useState} from 'react';
 import '../styles/Session.css';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
+import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
+import SkipNextIcon from '@mui/icons-material/SkipNext';
 import { useSocket } from '../Contexts/AppContext';
 
 const Session = () => {
     
     const socket_with_ai = useSocket();
     const pauseRef = useRef(false);
+    const buttonRefBack = useRef(null);
+    const buttonRefForward = useRef(null);
+    const buttonRefPlay = useRef(null);
     const framesRef = useRef([]);
     const indexRef = useRef(0);
     const img = new Image();
@@ -42,11 +47,13 @@ const Session = () => {
 
     // This function is called everytime the spacebar is pressed.
     const handleKeyPress = ({ keyCode }) => {
+
       const isSpaceBar = keyCode === 32;
       const isLeftArrow = keyCode === 37;
       const isRightArrow = keyCode === 39;
     
       if (isSpaceBar) {
+        buttonRefPlay.current.blur();
         if (pauseRef.current) {
           
           // This function starts rendering the frames
@@ -69,6 +76,7 @@ const Session = () => {
           // }
 
           pauseRef.current = false;
+          indexRef.current = framesRef.current.length - 1;
           setPauseOrPlay("Play");
           socket_with_ai.emit("Unpause");
           
@@ -86,18 +94,26 @@ const Session = () => {
         return;
       }
       
-      if (pauseRef.current) {
+       
 
-        if (isLeftArrow && indexRef.current > 0) {
-          indexRef.current -= 1;
-          renderFrame(framesRef.current[indexRef.current]);
-        }
-      
-        if (isRightArrow && indexRef.current !== framesRef.current.length - 1) {
-          indexRef.current += 1;
-          renderFrame(framesRef.current[indexRef.current]);
-        }
+      if (isLeftArrow && indexRef.current > 0) {
+        buttonRefBack.current.blur();
+        pauseRef.current = true;
+        setPauseOrPlay("Pause");
+        socket_with_ai.emit("Pause");
+        indexRef.current -= 1;
+        renderFrame(framesRef.current[indexRef.current]);
       }
+    
+      if (isRightArrow && indexRef.current !== framesRef.current.length - 1) {
+        buttonRefForward.current.blur();
+        pauseRef.current = true;
+        setPauseOrPlay("Pause");
+        socket_with_ai.emit("Pause");
+        indexRef.current += 1;
+        renderFrame(framesRef.current[indexRef.current]);
+      }
+      
       
     };
     
@@ -123,53 +139,55 @@ const Session = () => {
       return () => {
         document.removeEventListener('keydown', handleKeyPress);
       };
-    }, []);
+    }, [PauseOrPlay]);
 
     
 
     return (
-        <div className='__sessionPage__'>
-            <div className='__sessionBody__'>
-                <canvas ref={canvasRef} width={660} height={450}></canvas>
-            </div>
-            <div className='__sessionFooter__'>
-              <div className='__sessionFooterContent__'>
-                <div className='__sessionControlInfo__'>
-                  <h1 id="header">Keyboard Controls</h1>
-                  <ul>
-                    <li>
-                      Press <strong>Space </strong>key to <strong>Pause.</strong>
-                    </li>
-                    <li>
-                      Press <strong>Left Arrow </strong>key to <strong>Back.</strong>
-                    </li>
-                    <li>
-                      Press <strong>Right Arrow </strong>key to <strong>Forward.</strong>
-                    </li>
-                  </ul>
+      <div className='__sessionPage__'>
+          <div className='__sessionBody__'>
+              <canvas ref={canvasRef} width={660} height={450}></canvas>
+          </div>
+          <div className='__sessionFooter__'>
+            <div className='__sessionFooterContent__'>
+              <div className='__sessionControlInfo__'>
+                <h1 id="header">Keyboard Controls</h1>
+                <ul>
+                  <li>
+                    1. Press <strong>Space </strong>key to <strong>Pause.</strong>
+                  </li>
+                  <li>
+                    2. Press <strong>Left Arrow </strong>key to <strong>Back.</strong>
+                  </li>
+                  <li>
+                   3. Press <strong>Right Arrow </strong>key to <strong>Forward.</strong><br></br>
+                    <span style={{fontSize:13}}>Remember, Control No. 3 only works when reversed.</span>
+                  </li>
+                </ul>
+              </div>
+              <div className='__sessionButtons__'>
+                <div>
+                  <button id="button" onClick={() => handleKeyPress({ keyCode: 37 })} ref = {buttonRefBack}><SkipPreviousIcon/></button>
+                  <button id="button" onClick={() => handleKeyPress({ keyCode: 32 })} ref = {buttonRefPlay}>
+                  {PauseOrPlay==="Pause"?<PlayArrowIcon/>:<PauseIcon/>}</button>
+                  <button id="button" onClick={() => handleKeyPress({ keyCode: 39 })} ref = {buttonRefForward}><SkipNextIcon/></button>
                 </div>
-                <div className='__sessionButtons__'>
-                  <div>
-                  <button id="button" onClick={() => handleKeyPress({ keyCode: 37 })}>Back</button>
-                  <button id="button" onClick={() => handleKeyPress({ keyCode: 32 })}>{PauseOrPlay==="Pause"?<PlayArrowIcon/>:<PauseIcon/>}</button>
-                  <button id="button" onClick={() => handleKeyPress({ keyCode: 39 })}>Forward</button>
-                  </div>
-                  <div>
-                    <button id="button_">Feedback</button>
-                    <button id="button_c" onClick={handleCancel}>Cancel</button>
-                  </div>
-                </div>
-                <div className='__sessionDisclaimer__'>
-                  <h1 id="header">Description</h1>
-                  <h1 id="description">
-                    The application is currently running in real time.<br></br>
-                    The detection by the AI may differ from actual.<br></br>
-                  </h1>
+                <div>
+                  <button id="button_">Feedback</button>
+                  <button id="button_c" onClick={handleCancel}>Cancel</button>
                 </div>
               </div>
-              <p>&copy; The Deep Learners. All Rights Reserved.</p>
+              <div className='__sessionDisclaimer__'>
+                <h1 id="header">Description</h1>
+                <h1 id="description">
+                  The application is currently running in real time.<br></br>
+                  The detection by the AI may differ from actual.<br></br>
+                </h1>
+              </div>
             </div>
-        </div>
+            <p>&copy; The Deep Learners. All Rights Reserved.</p>
+          </div>
+      </div>
     );
 }
 
