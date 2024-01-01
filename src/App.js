@@ -3,7 +3,7 @@ import HomePage from './Pages/HomePage';
 import Register from './Pages/Register';
 import { BrowserRouter as Router,Route,Routes } from 'react-router-dom';
 import Session from './Pages/Session';
-import { SocketProvider } from './Contexts/SocketContext';
+import { SocketProvider } from './Contexts/AppContext';
 import io from 'socket.io-client';
 
 function App() {

@@ -1,6 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import "../styles/HomePage.css"
+import {motion} from 'framer-motion'
 function HomePage() {
 
     const navigate = useNavigate();
@@ -11,8 +12,12 @@ function HomePage() {
             
     return (
       <div>
-        <div className='__navbar__'>
-          <div className='__headTitle__'>
+        <motion.div className='__navbar__'
+        initial={{opacity:0}}
+        animate={{opacity:1}}
+        
+        >
+          <div className='__headTitle__' onClick={()=>{navigate('/')}}>
             <span>Gastro</span><span style={{color:'#3B94E5'}}>Genius</span>
           </div>
 
@@ -24,12 +29,22 @@ function HomePage() {
             </ul>
           </div>
 
-        </div>
-        <div className='__body__'>
+        </motion.div>
+        <motion.div className='__body__'
+        initial={{opacity:0}}
+        animate ={{opacity:1}}
+        transition={{duration:0.4,ease:'easeOut'}}
+        >
           <div className='__bodyTitle__'>
-            <h1>
-              Where Innovation <br></br> meets Health!
-            </h1>
+            <div>
+              <motion.h1
+              initial={{opacity:0,marginRight:'30px'}}
+              animate={{opacity:1,marginRight:0}}
+              transition={{duration:0.6, ease:'easeOut'}}
+              >
+                Where Innovation <br></br> meets Health!
+              </motion.h1> 
+            </div>
             <p>AI that detects polyps in real time.</p>
 
             <div className='__bodyButtons__'>
@@ -37,10 +52,14 @@ function HomePage() {
               <button className='__bodyButton2__'>Read More</button>
             </div>
           </div>
-          <div className='__bodyImage__'>
+          <motion.div className='__bodyImage__'
+          initial={{scale:0, opacity:0}}
+          animate={{scale:1, opacity:1}}
+          transition={{duration:0.5,ease:'easeOut'}}
+          >
             <img src={require('../Images/Laptop.png')} alt='LaptopImage'/>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
         <div className='__footer__'>
 
           <div className='__footerContent__'>
@@ -53,8 +72,8 @@ function HomePage() {
           <div className='__footerContent__'>
             <h1>Detect in Real Time</h1>
             <p>The application looks for any possible polyps in<br></br>
-              the footage you provide. Stop anytime to further<br></br>
-               analyze the findings.</p>
+              the footage you provide in real time. Stop anytime to<br></br>
+              further analyze the findings.</p>
           </div>
           
           <div className='__footerContent__'>

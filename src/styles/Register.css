@@ -1,0 +1,34 @@
+.__registerBody__ {
+    background-color:#103557;
+    height:100vh;
+    display:flex;
+    justify-content:space-around;
+    align-items:center
+}
+
+.__registerBodyTitle__ {
+    margin-top:26%;
+    display:flex;
+    align-items:baseline;
+    color:#fff;
+    font-size:80px;
+    font-weight:700
+}
+
+.__registerBodyDot__ {
+    width:12px;
+    height:12px;
+    background-color:#3b94e5;
+    border-radius:50%
+}
+
+.__registerBodyForm__ {
+    background-color:#fff;
+    width:450px;
+    padding:13px;
+    height:500px;
+    justify-content:space-around;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
