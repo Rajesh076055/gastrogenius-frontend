@@ -19,7 +19,6 @@ const Session = () => {
     const canvasRef = useRef(null);
     const [PauseOrPlay, setPauseOrPlay] = useState("Pause");
 
-    socket_with_ai.emit("connect_with_frontend");
 
      // This function is called everytime we need to render frames on the screen.
      const renderFrame = (frame)=> {
@@ -76,10 +75,9 @@ const Session = () => {
           // }
 
           pauseRef.current = false;
-          indexRef.current = framesRef.current.length - 1;
+          // indexRef.current = framesRef.current.length - 1;
           setPauseOrPlay("Play");
           socket_with_ai.emit("Unpause");
-          
           //processFrames();
         }
         
@@ -95,23 +93,18 @@ const Session = () => {
       }
       
        
-
-      if (isLeftArrow && indexRef.current > 0) {
+      if (isLeftArrow) {
         buttonRefBack.current.blur();
         pauseRef.current = true;
         setPauseOrPlay("Pause");
-        socket_with_ai.emit("Pause");
-        indexRef.current -= 1;
-        renderFrame(framesRef.current[indexRef.current]);
+        socket_with_ai.emit("Reverse");
       }
     
-      if (isRightArrow && indexRef.current !== framesRef.current.length - 1) {
+      if (isRightArrow) {
         buttonRefForward.current.blur();
         pauseRef.current = true;
         setPauseOrPlay("Pause");
-        socket_with_ai.emit("Pause");
-        indexRef.current += 1;
-        renderFrame(framesRef.current[indexRef.current]);
+        socket_with_ai.emit("Forward");
       }
       
       
@@ -120,8 +113,6 @@ const Session = () => {
 
     useEffect(()=>{
         socket_with_ai.on("Processed_Frame",(frame)=>{
-          indexRef.current += 1;
-          framesRef.current.push(frame);
           renderFrame(frame);
       })
     
