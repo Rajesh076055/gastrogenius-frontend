@@ -1,19 +1,43 @@
 import axios from "axios";
 
 const SERVER = 'http://localhost:8000'
+
 const startSession = async(filename)=> {
     try {
         const response = await axios.post(SERVER + '/start-session', filename, {
             headers: { 'Content-Type': 'multipart/form-data' },
         })
 
-        console.log(response);
         return response
 
     } catch (error) {
         console.log("Error at starting the session.", error);
     }
 }
+
+
+const confirmSelection = async(boxes, base64Frame)=> {
+    
+    const data = {
+        boxes:boxes,
+        base64:base64Frame
+    }
+
+
+    try {
+
+        const response = await axios.post(SERVER + '/feedback', data, {
+            headers:{ 'Content-Type': 'application/json'},
+        })
+        
+        return response;
+
+    } catch (error) {
+        
+        console.log("Something error with feedback line. ", error);
+    }
+};
+
 
 const postVideo = async(videoFile)=> {
 
@@ -32,4 +56,4 @@ const postVideo = async(videoFile)=> {
     }
 }
 
-export { startSession, postVideo};
+export { startSession, postVideo, confirmSelection};

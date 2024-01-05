@@ -15,10 +15,11 @@ function HomePage() {
         <motion.div className='__navbar__'
         initial={{opacity:0}}
         animate={{opacity:1}}
-        
         >
           <div className='__headTitle__' onClick={()=>{navigate('/')}}>
-            <span>Gastro</span><span style={{color:'#3B94E5'}}>Genius</span>
+            <span>Gastro</span>
+            <span style={{color:'#3B94E5'}}>Genius</span>
+            {/* <span style={{fontSize:10}}>BETA</span> */}
           </div>
 
           <div className='__headList__'>

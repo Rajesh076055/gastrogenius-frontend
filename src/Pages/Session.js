@@ -5,18 +5,23 @@ import PauseIcon from '@mui/icons-material/Pause';
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
 import SkipNextIcon from '@mui/icons-material/SkipNext';
 import { useSocket } from '../Contexts/AppContext';
+import FeedbackBox from '../Components/FeedbackBox';
+import { confirmSelection } from '../APIs/HTTPCalls';
 
 const Session = () => {
     
     const socket_with_ai = useSocket();
+    const frameRef = useRef(null);
+    const [boxes, setBoxes] = useState([]);
+    const sessionColorRef = useRef("#000");
     const pauseRef = useRef(false);
     const buttonRefBack = useRef(null);
     const buttonRefForward = useRef(null);
     const buttonRefPlay = useRef(null);
-    const framesRef = useRef([]);
-    const indexRef = useRef(0);
+    const [isFeedbackActive, setIsFeedbackActive] = useState(false);
     const img = new Image();
     const canvasRef = useRef(null);
+    const [size, setSize] = useState({height:0,width:0});
     const [PauseOrPlay, setPauseOrPlay] = useState("Pause");
 
 
@@ -26,18 +31,42 @@ const Session = () => {
       if (canvas) {
         const ctx = canvas.getContext('2d');
         img.src = `data:image/jpeg;base64,${frame}`;
-
         img.onload = () => {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         };
-
       }
+      frameRef.current = frame;
+    } 
+
+
+    const handleFeedback =()=> {
+      sessionColorRef.current = "#333";
+      setIsFeedbackActive(true);
+
+    }
+
+    const handleResetFeedback =()=> {
+      sessionColorRef.current = '#000';
+      setBoxes([]);
+      setIsFeedbackActive(false);
+    }
+
+    const handleSelections = async()=> {
+
+      const response = await confirmSelection(boxes, frameRef.current);
+
+      if (response.status === 200)
+      {
+        setBoxes([]);
+        setIsFeedbackActive(false);
+        sessionColorRef.current = '#000';
+      }
+
     }
 
     const handleCancel =()=> {
       
-
       socket_with_ai.emit('Unpause');
       socket_with_ai.emit('stop_thread');
 
@@ -55,30 +84,9 @@ const Session = () => {
         buttonRefPlay.current.blur();
         if (pauseRef.current) {
           
-          // This function starts rendering the frames
-          // from the location where the user is currently. When user
-          // backwards the player, and plays, the application should
-          // start rendering from that particular frame
-
-          // function processFrames() {
-            
-          //   // if (indexRef.current !== framesRef.current.length - 1)
-          //   // {
-          //   //   indexRef.current += 1;
-          //   //   renderFrame(framesRef.current[indexRef.current]);
-
-          //   //   setTimeout(processFrames, 50);
-          //   // }
-          //   // else
-            
-            
-          // }
-
           pauseRef.current = false;
-          // indexRef.current = framesRef.current.length - 1;
           setPauseOrPlay("Play");
           socket_with_ai.emit("Unpause");
-          //processFrames();
         }
         
         else
@@ -109,6 +117,18 @@ const Session = () => {
       
       
     };
+
+    useEffect(()=>{
+      socket_with_ai.on("size",(size)=> {
+
+       setSize({
+        height:502,
+        width:size['width'] * 502 / size["height"]
+       })
+        
+
+      })
+    },[socket_with_ai])
     
 
     useEffect(()=>{
@@ -136,8 +156,9 @@ const Session = () => {
 
     return (
       <div className='__sessionPage__'>
-          <div className='__sessionBody__'>
-              <canvas ref={canvasRef} width={660} height={450}></canvas>
+          <FeedbackBox isActive={isFeedbackActive} boundingBox={boxes} setBoundingBox={setBoxes} size={size}/>
+          <div className='__sessionBody__' style={{backgroundColor:sessionColorRef.current}}>
+              <canvas ref={canvasRef} width={size.width} height={size.height}></canvas>
           </div>
           <div className='__sessionFooter__'>
             <div className='__sessionFooterContent__'>
@@ -152,7 +173,6 @@ const Session = () => {
                   </li>
                   <li>
                    3. Press <strong>Right Arrow </strong>key to <strong>Forward.</strong><br></br>
-                    <span style={{fontSize:13}}>Remember, Control No. 3 only works when reversed.</span>
                   </li>
                 </ul>
               </div>
@@ -164,16 +184,20 @@ const Session = () => {
                   <button id="button" onClick={() => handleKeyPress({ keyCode: 39 })} ref = {buttonRefForward}><SkipNextIcon/></button>
                 </div>
                 <div>
-                  <button id="button_">Feedback</button>
-                  <button id="button_c" onClick={handleCancel}>Cancel</button>
+                  {!isFeedbackActive && <button id="button_" onClick={handleFeedback}>Feedback</button>}
+                  {isFeedbackActive && <button id="button_" onClick={handleSelections}>Confirm Selections</button>}
+                  {isFeedbackActive && <button id="button_c" onClick={handleResetFeedback}>Cancel Feedback</button>}
+                 {!isFeedbackActive && <button id="button_c" onClick={handleCancel}>Cancel Session</button>}
                 </div>
               </div>
               <div className='__sessionDisclaimer__'>
                 <h1 id="header">Description</h1>
-                <h1 id="description">
+                {/* <h1 id="description">
                   The application is currently running in real time.<br></br>
                   The detection by the AI may differ from actual.<br></br>
-                </h1>
+                  Make sure to pause the session before you give a feedback. <br></br>
+                  While under feedback, click anywhere within the canvas <br></br>to draw bounding box.
+                </h1> */}
               </div>
             </div>
             <p>&copy; The Deep Learners. All Rights Reserved.</p>

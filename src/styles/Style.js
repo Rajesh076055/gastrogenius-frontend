@@ -30,4 +30,19 @@ const style2 = {
   }
 }
 
-export {useStyles, style, style2};
+const styleModalBox = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: '#eee',
+  color:'#000',
+  borderRadius:3,
+  display:'flex',
+  flexDirection:'column',
+  alignItems:'center',
+  justifyContent:'space-between',
+  p: 3,
+};
+export {useStyles, style, style2, styleModalBox};

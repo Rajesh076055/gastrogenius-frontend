@@ -12,6 +12,8 @@
 .__headTitle__ {
     font-size: 25px;
     font-weight: 650;
+    display: flex;
+    align-items: center;
 }
 
 .__headTitle__:hover {

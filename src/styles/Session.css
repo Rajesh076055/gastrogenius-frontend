@@ -1,5 +1,4 @@
 .__sessionBody__ {
-    background-color: #000;
     height: 75vh;
     display: flex;
     align-items: center;
@@ -13,6 +12,8 @@
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
+    z-index: 1;
+    position: relative;
 }
 
 .__sessionFooter__ p {
@@ -55,7 +56,7 @@
 }
 
 #button {
-    background-color: #3b94e5;
+    color:#fff;
     margin: 5px;
     padding: 10px;
     width: 100px;
@@ -66,7 +67,7 @@
     background-color: #e44c60;
     margin: 5px;
     padding: 10px;
-    width: 100px;
+    width: 150px;
     border-radius: 5px;
 }
 
@@ -85,4 +86,5 @@
 
 #description {
     color:#fff;
+    font-size: 14px;
 }

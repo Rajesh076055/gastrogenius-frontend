@@ -94,7 +94,7 @@ function Register() {
 
         <FormGroup>
           <FormControlLabel control={<Checkbox disabled={name ? (diagnosis ? false : true) : true} />} 
-          label="I want the system to save the footages of findings" />
+          label="I want to download the results of detection" />
         </FormGroup>
 
         <Button sx={style.root} className={`${classes.inputField}`} disabled={!goodToStart} 
