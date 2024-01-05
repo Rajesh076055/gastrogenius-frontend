@@ -16,6 +16,15 @@ const style = {
         boxShadow: "default"
       },
       boxShadow: 'none',
+    },
+    remove: {
+      backgroundColor:'#fff',
+      color:'#000',
+      ':hover': {
+        backgroundColor: "#ddd",
+        boxShadow: 'none'
+      },
+      boxShadow:'none'
     }
 }
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import LabelModal from './LabelModal';
 
+
 const FeedbackBox = ({isActive, boundingBox, setBoundingBox, size}) => {
 
     const [box, setBox] = useState({
@@ -13,7 +14,6 @@ const FeedbackBox = ({isActive, boundingBox, setBoundingBox, size}) => {
     })
 
     const [showModal, setShowModal] = useState(false);
-    const [label, setLabel] = useState("");
     const [drawing, setDrawing] = useState(0);
     var adjustment_min = (960 - ((size['width'] * 502 / size['height']) / 2) - 200);
     var adjustment_max = adjustment_min + size['width'] * 502 / size['height'];
@@ -51,6 +51,12 @@ const FeedbackBox = ({isActive, boundingBox, setBoundingBox, size}) => {
 
         setShowModal(false);
 
+    }
+
+    
+    const handleRemove=()=> {
+        setShowModal(false);
+        setBox({x:0,y:0,width:0,height:0,display:'None'})
     }
 
 
@@ -170,7 +176,7 @@ const FeedbackBox = ({isActive, boundingBox, setBoundingBox, size}) => {
 
     return (
         <div>
-        <LabelModal isOpen = {showModal} onConfirm={handleTypeConfirm} onClose={handleClose}/>
+        <LabelModal isOpen = {showModal} onConfirm={handleTypeConfirm} onClose={handleClose} onRemove={handleRemove}/>
         {isActive && <div className='__feedbackCoordinateLine__' style={
             {   
                 position:'absolute',

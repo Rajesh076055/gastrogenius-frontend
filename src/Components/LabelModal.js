@@ -2,7 +2,7 @@ import React,{useEffect, useState} from 'react';
 import { Modal, Box, Typography, InputLabel, Select, FormControl, MenuItem, Button } from '@mui/material';
 import { styleModalBox, useStyles, style } from '../styles/Style';
 import "../styles/Session.css"
-const LabelModal = ({isOpen, onClose, onConfirm}) => {
+const LabelModal = ({isOpen, onClose, onConfirm, onRemove}) => {
 
     
     const polypsType = ["Adenomatous", "Hyperplastic"];
@@ -16,7 +16,7 @@ const LabelModal = ({isOpen, onClose, onConfirm}) => {
     const handleClose =()=> {
         
         if (type.length === 0) {
-            alert("You must choose a label.")
+            alert("You must choose a label for the bounding box or remove it.")
             return;
         }
 
@@ -53,6 +53,8 @@ const LabelModal = ({isOpen, onClose, onConfirm}) => {
                     </FormControl>
                     <Button sx={[style.root,{marginTop:3}]} className={`${classes.inputField}`} disabled={type.length === 0?true:false} 
                     variant="contained" onClick={()=>onConfirm(type)}>Confirm</Button>
+                    <Button sx={[style.remove,{marginTop:1}]} className={`${classes.inputField}`} 
+                    variant="contained" onClick={onRemove}>Remove</Button>
                 </Box>
             </Modal>
                 

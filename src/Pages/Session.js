@@ -7,6 +7,7 @@ import SkipNextIcon from '@mui/icons-material/SkipNext';
 import { useSocket } from '../Contexts/AppContext';
 import FeedbackBox from '../Components/FeedbackBox';
 import { confirmSelection } from '../APIs/HTTPCalls';
+import cursorImage from '../Images/image.png';
 
 const Session = () => {
     
@@ -155,14 +156,15 @@ const Session = () => {
       return () => {
         document.removeEventListener('keydown', handleKeyPress);
       };
-    }, [PauseOrPlay]);
+    }, [PauseOrPlay, isFeedbackActive]);
 
     
 
     return (
       <div className='__sessionPage__'>
           <FeedbackBox isActive={isFeedbackActive} boundingBox={boxes} setBoundingBox={setBoxes} size={size}/>
-          <div className='__sessionBody__' style={{backgroundColor:sessionColorRef.current}}>
+          <div className='__sessionBody__' 
+          style={{backgroundColor:sessionColorRef.current}}>
               <canvas ref={canvasRef} width={size.width} height={size.height}></canvas>
           </div>
           <div className='__sessionFooter__'>
