@@ -16,11 +16,10 @@ const startSession = async(filename)=> {
 }
 
 
-const confirmSelection = async(boxes, base64Frame)=> {
+const confirmSelection = async(boxes)=> {
     
     const data = {
-        boxes:boxes,
-        base64:base64Frame
+        boxes:boxes,    
     }
 
 

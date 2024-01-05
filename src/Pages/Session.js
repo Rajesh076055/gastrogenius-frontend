@@ -21,7 +21,7 @@ const Session = () => {
     const [isFeedbackActive, setIsFeedbackActive] = useState(false);
     const img = new Image();
     const canvasRef = useRef(null);
-    const [size, setSize] = useState({height:0,width:0});
+    const [size, setSize] = useState({height:502,width:820});
     const [PauseOrPlay, setPauseOrPlay] = useState("Pause");
 
 
@@ -54,7 +54,7 @@ const Session = () => {
 
     const handleSelections = async()=> {
 
-      const response = await confirmSelection(boxes, frameRef.current);
+      const response = await confirmSelection(boxes);
 
       if (response.status === 200)
       {
@@ -129,6 +129,11 @@ const Session = () => {
 
       })
     },[socket_with_ai])
+
+
+    useEffect(()=>{
+      renderFrame(frameRef.current);
+    },[size])
     
 
     useEffect(()=>{
