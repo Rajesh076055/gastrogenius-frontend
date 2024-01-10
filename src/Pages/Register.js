@@ -8,12 +8,14 @@ import { useSocket } from '../Contexts/AppContext';
 import '../styles/Register.css';
 import {startSession, postVideo} from '../APIs/HTTPCalls';
 import { useStyles, style } from '../styles/Style';
+import { useCanvasSize } from '../Contexts/AppContext';
 
 function Register() {
 
   const classes = useStyles();
   const navigate = useNavigate();
   const socket_with_ai = useSocket();
+  const { setCanvasSize } = useCanvasSize();
 
   const diagnosisTypes = ["Endoscopy", "Colonoscopy"];
   const [diagnosis, setDiagnosis] = React.useState('');
@@ -35,6 +37,7 @@ function Register() {
     if (response.data.ack) {
       setGoodToStart(true);
       setFilename(response?.data?.filepath);
+      
     }
 
   }
@@ -45,7 +48,10 @@ function Register() {
 
     if (response.data.ACK)
     {
+      const { width, height } = response.data.size;
+      setCanvasSize({ width, height });
       navigate('/session');
+
     }
     
   };

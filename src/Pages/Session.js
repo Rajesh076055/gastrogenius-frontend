@@ -7,11 +7,12 @@ import SkipNextIcon from '@mui/icons-material/SkipNext';
 import { useSocket } from '../Contexts/AppContext';
 import FeedbackBox from '../Components/FeedbackBox';
 import { confirmSelection } from '../APIs/HTTPCalls';
-import cursorImage from '../Images/image.png';
+import { useCanvasSize } from '../Contexts/AppContext';
 
 const Session = () => {
     
     const socket_with_ai = useSocket();
+    const { canvasSize } = useCanvasSize();
     const frameRef = useRef(null);
     const [boxes, setBoxes] = useState([]);
     const sessionColorRef = useRef("#000");
@@ -22,8 +23,10 @@ const Session = () => {
     const [isFeedbackActive, setIsFeedbackActive] = useState(false);
     const img = new Image();
     const canvasRef = useRef(null);
-    const [size, setSize] = useState({height:502,width:820});
-    const [PauseOrPlay, setPauseOrPlay] = useState("Pause");
+    const canvasHeightPercent = 0.7;
+    const [size, setSize] = useState({height: canvasHeightPercent * window.screen.availHeight,
+       width:canvasSize.width * (canvasHeightPercent * window.screen.availHeight) / canvasSize.height});
+
 
 
      // This function is called everytime we need to render frames on the screen.
@@ -31,6 +34,7 @@ const Session = () => {
       const canvas = canvasRef.current;
       if (canvas) {
         const ctx = canvas.getContext('2d');
+
         img.src = `data:image/jpeg;base64,${frame}`;
         img.onload = () => {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -44,16 +48,35 @@ const Session = () => {
     const handleFeedback =()=> {
       sessionColorRef.current = "#333";
       setIsFeedbackActive(true);
+      socket_with_ai.emit("Pause");
 
     }
+
 
     const handleResetFeedback =()=> {
       sessionColorRef.current = '#000';
       setBoxes([]);
       setIsFeedbackActive(false);
+      socket_with_ai.emit("Unpause");
     }
 
+
+    const handleResize =()=> {
+      setSize({
+        height:canvasHeightPercent * window.screen.availHeight,
+        width: canvasSize.width * (canvasHeightPercent * window.screen.availHeight) / canvasSize.height
+      })
+
+    }
+
+
     const handleSelections = async()=> {
+
+      if (boxes.length === 0) 
+      {
+        alert("No boxes drawn.")
+        return
+      }
 
       const response = await confirmSelection(boxes);
 
@@ -61,7 +84,9 @@ const Session = () => {
       {
         setBoxes([]);
         setIsFeedbackActive(false);
+        pauseRef.current = false;
         sessionColorRef.current = '#000';
+        socket_with_ai.emit("Unpause");
       }
 
     }
@@ -71,7 +96,7 @@ const Session = () => {
       socket_with_ai.emit('Unpause');
       socket_with_ai.emit('stop_thread');
 
-      window.location.assign('/');
+      window.location.assign('/register-service');
     }
 
     // This function is called everytime the spacebar is pressed.
@@ -82,18 +107,17 @@ const Session = () => {
       const isRightArrow = keyCode === 39;
     
       if (isSpaceBar) {
-        buttonRefPlay.current.blur();
         if (pauseRef.current) {
           
           pauseRef.current = false;
-          setPauseOrPlay("Play");
+          //setPauseOrPlay("Play");
           socket_with_ai.emit("Unpause");
         }
         
         else
         {
           pauseRef.current = true;
-          setPauseOrPlay("Pause");
+          //setPauseOrPlay("Pause");
           socket_with_ai.emit("Pause");
           
         } 
@@ -103,39 +127,20 @@ const Session = () => {
       
        
       if (isLeftArrow) {
-        buttonRefBack.current.blur();
         pauseRef.current = true;
-        setPauseOrPlay("Pause");
+        //setPauseOrPlay("Pause");
         socket_with_ai.emit("Reverse");
       }
     
       if (isRightArrow) {
-        buttonRefForward.current.blur();
         pauseRef.current = true;
-        setPauseOrPlay("Pause");
+        //setPauseOrPlay("Pause");
         socket_with_ai.emit("Forward");
       }
       
       
     };
 
-    useEffect(()=>{
-      socket_with_ai.on("size",(size)=> {
-
-       setSize({
-        height:502,
-        width:size['width'] * 502 / size["height"]
-       })
-        
-
-      })
-    },[socket_with_ai])
-
-
-    useEffect(()=>{
-      renderFrame(frameRef.current);
-    },[size])
-    
 
     useEffect(()=>{
         socket_with_ai.on("Processed_Frame",(frame)=>{
@@ -152,21 +157,28 @@ const Session = () => {
     useEffect(() => {
       
       document.addEventListener('keydown', handleKeyPress);
+     
   
       return () => {
         document.removeEventListener('keydown', handleKeyPress);
       };
-    }, [PauseOrPlay, isFeedbackActive]);
+    }, [pauseRef.current, isFeedbackActive]);
 
+
+    useEffect(()=>{
+      
+      window.addEventListener("resize", handleResize);
+
+      return ()=> {
+        window.removeEventListener("resize", handleResize);
+      }
+
+    },[window.screen.availHeight, size])
     
 
     return (
-      <div className='__sessionPage__'>
+      <div className='__sessionPage__' style={{backgroundColor:sessionColorRef.current}}>
           <FeedbackBox isActive={isFeedbackActive} boundingBox={boxes} setBoundingBox={setBoxes} size={size}/>
-          <div className='__sessionBody__' 
-          style={{backgroundColor:sessionColorRef.current}}>
-              <canvas ref={canvasRef} width={size.width} height={size.height}></canvas>
-          </div>
           <div className='__sessionFooter__'>
             <div className='__sessionFooterContent__'>
               <div className='__sessionControlInfo__'>
@@ -185,30 +197,20 @@ const Session = () => {
               </div>
               <div className='__sessionButtons__'>
                 <div>
-                  <button id="button" onClick={() => handleKeyPress({ keyCode: 37 })} ref = {buttonRefBack}><SkipPreviousIcon/></button>
-                  <button id="button" onClick={() => handleKeyPress({ keyCode: 32 })} ref = {buttonRefPlay}>
-                  {PauseOrPlay==="Pause"?<PlayArrowIcon/>:<PauseIcon/>}</button>
-                  <button id="button" onClick={() => handleKeyPress({ keyCode: 39 })} ref = {buttonRefForward}><SkipNextIcon/></button>
-                </div>
-                <div>
                   {!isFeedbackActive && <button id="button_" onClick={handleFeedback}>Feedback</button>}
                   {isFeedbackActive && <button id="button_" onClick={handleSelections}>Confirm Selections</button>}
                   {isFeedbackActive && <button id="button_c" onClick={handleResetFeedback}>Cancel Feedback</button>}
                  {!isFeedbackActive && <button id="button_c" onClick={handleCancel}>Cancel Session</button>}
                 </div>
               </div>
-              <div className='__sessionDisclaimer__'>
-                <h1 id="header">Description</h1>
-                {/* <h1 id="description">
-                  The application is currently running in real time.<br></br>
-                  The detection by the AI may differ from actual.<br></br>
-                  Make sure to pause the session before you give a feedback. <br></br>
-                  While under feedback, click anywhere within the canvas <br></br>to draw bounding box.
-                </h1> */}
-              </div>
             </div>
-            <p>&copy; The Deep Learners. All Rights Reserved.</p>
           </div>
+
+          <div className='__sessionBody__'>
+              <canvas ref={canvasRef} width={size.width} height={size.height}></canvas>
+          </div>
+
+          <p style={{position:'fixed', color: '#fff', bottom:0, fontSize:12}}>&copy;The Deep Learners. All Rights Reserved.</p>
       </div>
     );
 }

@@ -1,4 +1,4 @@
-import React,{useEffect, useState} from 'react';
+import React,{useState} from 'react';
 import { Modal, Box, Typography, InputLabel, Select, FormControl, MenuItem, Button } from '@mui/material';
 import { styleModalBox, useStyles, style } from '../styles/Style';
 import "../styles/Session.css"
@@ -25,7 +25,6 @@ const LabelModal = ({isOpen, onClose, onConfirm, onRemove}) => {
         
     }
 
-    useEffect(()=>{},[type])
     return (
         <div>
             <Modal
