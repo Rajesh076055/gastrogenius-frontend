@@ -17,9 +17,6 @@ const Session = () => {
     const [boxes, setBoxes] = useState([]);
     const sessionColorRef = useRef("#000");
     const pauseRef = useRef(false);
-    const buttonRefBack = useRef(null);
-    const buttonRefForward = useRef(null);
-    const buttonRefPlay = useRef(null);
     const [isFeedbackActive, setIsFeedbackActive] = useState(false);
     const img = new Image();
     const canvasRef = useRef(null);
@@ -78,7 +75,16 @@ const Session = () => {
         return
       }
 
-      const response = await confirmSelection(boxes);
+      const data = {
+        boxes:boxes,
+        size:size,
+        windowSize:{
+          width:window.innerWidth,
+          height:window.innerHeight
+        }
+      }
+
+      const response = await confirmSelection(data);
 
       if (response.status === 200)
       {

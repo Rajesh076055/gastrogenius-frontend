@@ -16,12 +16,8 @@ const startSession = async(filename)=> {
 }
 
 
-const confirmSelection = async(boxes)=> {
+const confirmSelection = async(data)=> {
     
-    const data = {
-        boxes:boxes,    
-    }
-
 
     try {
 
