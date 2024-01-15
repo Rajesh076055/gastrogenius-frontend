@@ -6,6 +6,13 @@ export const SocketProvider = ({ children, value }) => {
   return <SocketContext.Provider value={value}>{children}</SocketContext.Provider>;
 };
 
+const NameContext = createContext();
+
+export const NameProvider = ({children})=> {
+  const [name, setName] = useState('');
+  const [diagnosis, setDiagnosis] = useState('');
+  return <NameContext.Provider value={{name, setName, diagnosis, setDiagnosis}}>{children}</NameContext.Provider>
+}
 
 const CanvasSizeContext = createContext();
 
@@ -19,9 +26,14 @@ export const CanvasSizeProvider = ({ children }) => {
   );
 };
 
+
 export const useCanvasSize = () => {
   return useContext(CanvasSizeContext);
 };
+
+export const useName =()=> {
+  return useContext(NameContext);
+}
 
 export const useSocket = () => {
   return useContext(SocketContext);

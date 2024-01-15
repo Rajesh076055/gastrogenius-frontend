@@ -126,10 +126,7 @@ const FeedbackBox = ({ isActive, boundingBox, setBoundingBox, size }) => {
     }
 
     const handleCoordinates = (event) => {
-
-        console.log(event.clientX)
-
-        
+ 
         var width = event.clientX - box.x;
         var height = event.clientY - box.y;
 

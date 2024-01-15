@@ -54,4 +54,6 @@ const styleModalBox = {
   justifyContent:'space-between',
   p: 3,
 };
+
+
 export {useStyles, style, style2, styleModalBox};

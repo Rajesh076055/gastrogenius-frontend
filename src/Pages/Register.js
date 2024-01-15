@@ -1,12 +1,13 @@
-import React from 'react'
-import { TextField, Input, Select, MenuItem, FormControl, InputLabel, Button } from '@mui/material'
+import React, {useEffect, useState} from 'react';
+import { TextField, Input, Select, MenuItem, FormControl, InputLabel, Button } from '@mui/material';
 import Checkbox from '@mui/material/Checkbox';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { useNavigate } from 'react-router-dom';
 import { useSocket } from '../Contexts/AppContext';
+import { useName } from '../Contexts/AppContext';
 import '../styles/Register.css';
-import {startSession, postVideo} from '../APIs/HTTPCalls';
+import { postVideo, downloadZip} from '../APIs/HTTPCalls';
 import { useStyles, style } from '../styles/Style';
 import { useCanvasSize } from '../Contexts/AppContext';
 
@@ -16,50 +17,83 @@ function Register() {
   const navigate = useNavigate();
   const socket_with_ai = useSocket();
   const { setCanvasSize } = useCanvasSize();
-
+  const [check, setCheck] = useState(false);
+  const { setName, diagnosis, setDiagnosis } = useName();
+  const [diagnosis_, setDiagnosis_] = useState('');
   const diagnosisTypes = ["Endoscopy", "Colonoscopy"];
-  const [diagnosis, setDiagnosis] = React.useState('');
-  const [name, setName] = React.useState('');
-  const [filename, setFilename] = React.useState('');
-  const [goodToStart, setGoodToStart] = React.useState(false);
+  const [name_, setName_] = useState('');
+  const [filename, setFilename] = useState('');
 
- 
+
   const handleChange = (e) => {
+    setDiagnosis_(e.target.value);
     setDiagnosis(e.target.value);
   };
 
+  const handleCheckBox=(e)=> {
+    setCheck((prev)=>!prev);
+  }
+
   const handleVideoInput = async (e) => {
 
+    if (name_ === "")
+    {
+      alert("Enter Name first");
+      return
+    }
+    
+    setName(name_);
+
+    socket_with_ai.emit('join', name_);
+    
     const videoFile = e.target.files[0];
 
-    const response = await postVideo(videoFile);
+    const formData = new FormData();
+    formData.append('file', videoFile);
+    formData.append('name', name_);
 
-    if (response.data.ack) {
-      setGoodToStart(true);
+    const response = await postVideo(formData);
+    if (response?.data?.ack)
+    {
       setFilename(response?.data?.filepath);
-      
+      const { width, height } = response?.data?.size;
+      setCanvasSize({ width, height });
     }
-
   }
+
 
   const initiateSession = async() => {
 
-    const response = await startSession(filename);
-
-    if (response.data.ACK)
-    {
-      const { width, height } = response.data.size;
-      setCanvasSize({ width, height });
-      navigate('/session');
-
+    const data = {
+      "name":name_,
+      "diagnosis":diagnosis_,
+      "save_value":check,
+      "video_path":filename
     }
     
+    socket_with_ai.emit('start-session', data);
+
+    navigate('/session');
+   
   };
 
-  React.useEffect(()=>{
+  useEffect(()=>{
+    
+    socket_with_ai.on("end",async(data)=>{
+      
+      try 
+       {
+        
+        await downloadZip(data, socket_with_ai);
+ 
+       } catch (error) {
+           console.log("Error in download_zip function:", error);
+       }
+    })
 
-    socket_with_ai.emit('stop_thread');
-    socket_with_ai.emit('Unpause');
+    return ()=> {
+      socket_with_ai.off("end");
+    }
 
   },[socket_with_ai]);
 
@@ -79,7 +113,7 @@ function Register() {
           label="Your Full Name"
           variant="outlined"
           className={classes.inputField}
-          onChange={(e) => { setName(e.target.value)}}
+          onChange={(e) => { setName_(e.target.value)}}
         />
 
         <FormControl className={`${classes.inputField}`}>
@@ -87,7 +121,7 @@ function Register() {
           <Select
             labelId="demo-simple-select-label"
             id="demo-simple-select"
-            value={diagnosis}
+            value={diagnosis_}
             label="Diagnosis Type"
             onChange={handleChange}
           >
@@ -99,11 +133,11 @@ function Register() {
         <Input type="file" accept="video/*,image/*" onChange={handleVideoInput}></Input>
 
         <FormGroup>
-          <FormControlLabel control={<Checkbox disabled={name ? (diagnosis ? false : true) : true} />} 
+          <FormControlLabel control={<Checkbox disabled={name_ ? (diagnosis_ ? false : true) : true} onChange={(e)=>handleCheckBox(e)} />} 
           label="I want to download the results of detection" />
         </FormGroup>
 
-        <Button sx={style.root} className={`${classes.inputField}`} disabled={!goodToStart} 
+        <Button sx={style.root} className={`${classes.inputField}`} disabled={name_ ? (diagnosis_ ? (filename ? false: true) : true) : true} 
         variant="contained" onClick={initiateSession}>Start the session</Button>
 
       </div>
