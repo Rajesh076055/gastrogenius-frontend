@@ -7,9 +7,10 @@ import { SocketProvider } from './Contexts/AppContext';
 import { CanvasSizeProvider } from './Contexts/AppContext';
 import { NameProvider } from './Contexts/AppContext';
 import io from 'socket.io-client';
-
+import { SERVER_ADDRESS } from './APIs/variables';
 function App() {
-  const socket_with_ai = io('http://192.168.1.69:8000');
+
+  const socket_with_ai = io(SERVER_ADDRESS);
   
   socket_with_ai.emit("connects")
 

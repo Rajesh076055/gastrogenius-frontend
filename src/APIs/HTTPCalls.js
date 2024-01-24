@@ -1,12 +1,10 @@
 import axios from "axios";
-
-const SERVER = 'http://192.168.1.69:8000'
-
+import {SERVER_ADDRESS} from './variables.js'
 
 const startSession = async(data)=> {
     try {
 
-        const response = await axios.post(SERVER + '/start-session', data, {
+        const response = await axios.post(SERVER_ADDRESS + '/start-session', data, {
             headers:{ 'Content-Type': 'application/json'},
         })
         
@@ -21,7 +19,7 @@ const startSession = async(data)=> {
 const downloadZip = async(data, socket)=>  {
 
     try {
-        const response = await fetch( SERVER + '/download-zip', {
+        const response = await fetch( SERVER_ADDRESS + '/download-zip', {
             method: 'POST', // Assuming your Flask route is set up to handle POST requests
             headers: {
               'Content-Type': 'application/json',
@@ -48,7 +46,7 @@ const confirmSelection = async(data)=> {
 
     try {
 
-        const response = await axios.post(SERVER + '/feedback', data, {
+        const response = await axios.post(SERVER_ADDRESS + '/feedback', data, {
             headers:{ 'Content-Type': 'application/json'},
         })
         
@@ -65,10 +63,12 @@ const postVideo = async(formData)=> {
 
   
     try {
-        const response = await axios.post(SERVER + '/send-videos', formData, {
+        
+        const response = await axios.post(`${SERVER_ADDRESS}/send-videos`, formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
         })
 
+        console.log(response)
         return response;
     } catch (error) {
 
