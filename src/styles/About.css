@@ -1,0 +1,15 @@
+.about-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f2f2f2; /* Choose your desired background color */
+    color: #333; /* Text color */
+  }
+
+  p {
+    line-height: 1.8;
+    text-align: justify;
+    font-weight: 100;
+    font-style: normal;
+  }
+  

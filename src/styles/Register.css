@@ -6,13 +6,35 @@
     align-items:center
 }
 
+.__registerBodyImageContainer__  img {
+    position: absolute;
+}
+
+#polypsImage1 {
+    object-fit: contain;
+    left: 10%;
+    top:20%;
+    height: 50%;
+}
+
+#polypsImage2 {
+    left:27%;
+    top:30%;
+    object-fit: contain;
+    height: 40%;
+}
+
 .__registerBodyTitle__ {
     margin-top:26%;
     display:flex;
     align-items:baseline;
     color:#fff;
     font-size:80px;
-    font-weight:700
+    font-weight:700;
+}
+
+.__registerBodyTitle__:hover {
+    cursor: pointer;
 }
 
 .__registerBodyDot__ {

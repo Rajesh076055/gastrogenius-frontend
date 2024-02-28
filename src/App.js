@@ -8,6 +8,7 @@ import { CanvasSizeProvider } from './Contexts/AppContext';
 import { NameProvider } from './Contexts/AppContext';
 import io from 'socket.io-client';
 import { SERVER_ADDRESS } from './APIs/variables';
+import Developers from './Pages/Developers';
 function App() {
 
   const socket_with_ai = io(SERVER_ADDRESS);
@@ -22,7 +23,8 @@ function App() {
             <Routes>
               <Route exact path = "/" element = {<HomePage />} />
               <Route path = "/register-service" element = {<Register />} />
-              <Route path = "/session/" element = {<Session/>} />
+              <Route path = "/session" element = {<Session/>} />
+              <Route path = '/developers' element = {<Developers/>} />
             </Routes>
           </Router>
         </NameProvider>

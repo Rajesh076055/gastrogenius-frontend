@@ -100,11 +100,11 @@ function Register() {
 
   return (
     <div className='__registerBody__'>
-      <div className='__registerBodyTitle__'>
+      <div className='__registerBodyTitle__' onClick={()=>navigate('/')}>
 
         <h1>Gastro<span style={{color:'#3b94e5'}}>Genius</span></h1>
         <span className='__registerBodyDot__'></span>
-
+    
       </div>
       <div className="__registerBodyForm__">
         <h1 className='font-semibold text-2xl'>Please enter the details</h1>

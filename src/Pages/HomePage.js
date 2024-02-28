@@ -1,11 +1,12 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import "../styles/HomePage.css"
 import {motion} from 'framer-motion'
+import About from './About'
 function HomePage() {
 
     const navigate = useNavigate();
-
+    const [isOpen, setIsOpen] = useState(false);
     const handleStart = () => {
         navigate('/register-service');
       }
@@ -24,8 +25,8 @@ function HomePage() {
 
           <div className='__headList__'>
             <ul>
-              <li>About</li>
-              <li>Developers</li>
+              <li onClick={()=>setIsOpen(true)}>About</li>
+              <li onClick={()=>navigate('/developers')}>Developers</li>
               <li>Contact Us</li>
             </ul>
           </div>
@@ -50,7 +51,7 @@ function HomePage() {
 
             <div className='__bodyButtons__'>
               <button className='__bodyButton1__' onClick={handleStart}>Start</button>
-              <button className='__bodyButton2__'>Read More</button>
+              <button className='__bodyButton2__' onClick={()=>setIsOpen(true)}>Read More</button>
             </div>
           </div>
           <motion.div className='__bodyImage__'
@@ -84,6 +85,8 @@ function HomePage() {
             local device if you need.</p>
           </div>
         </div>
+
+        <About props={{isOpen, setIsOpen}}/>
       </div>
 
 
